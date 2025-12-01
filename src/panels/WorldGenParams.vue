@@ -3,19 +3,17 @@ import SeedInput from '../components/SeedInput.vue'
 import OptionCard from '@/components/OptionCard.vue'
 
 const props = withDefaults(defineProps<{ locked?: boolean }>(), {
-    locked: false,
+    locked: false
 })
 const seed = defineModel<number>('seed', { default: 0 })
 const worldSize = defineModel<'small' | 'medium' | 'large'>('worldSize', { default: 'small' })
-const evilGenType = defineModel<'random' | 'corruption' | 'crimson'>('evilType', { default: 'random' })
+const evilGenType = defineModel<'random' | 'corruption' | 'crimson'>('evilType', {
+    default: 'random'
+})
 </script>
 
 <template>
     <div class="world-gen-info-panel min-w-80">
-        <!-- 面板标题 -->
-        <div class="panel-header mb-6 flex items-center justify-between">
-            <h2 class="text-xl font-bold text-amber-400">世界生成信息</h2>
-        </div>
         <!-- 种子输入区域 -->
         <seed-input v-model="seed" :locked="props.locked" class="mb-6" />
 

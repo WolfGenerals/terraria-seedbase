@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
     showLegend: false,
     color: 'red',
     formatX: (value: number) => value.toFixed(2),
-    formatY: (value: number) => value.toFixed(2),
+    formatY: (value: number) => value.toFixed(2)
 })
 
 // 计算值在范围内的位置百分比
@@ -51,7 +51,7 @@ const getPointStyle = (point: Point) => {
         left: `${getXPosition(point.x)}%`,
         top: `${getYPosition(point.y)}%`,
         width: `1rem`,
-        height: `1rem`,
+        height: `1rem`
     }
 
     // 如果有图标，设置背景图片
@@ -80,7 +80,7 @@ const getPointClass = (point: Point) => {
         'left-[50%]',
         'transform',
         'translate-x-[-50%]',
-        'translate-y-[-50%]',
+        'translate-y-[-50%]'
     ]
 
     // 如果有图标，使用方形；否则使用圆形
@@ -95,7 +95,7 @@ const getPointClass = (point: Point) => {
 </script>
 
 <template>
-    <div class="coordinate-point min-w-50 space-y-2 w-full">
+    <div class="coordinate-point w-full min-w-50 space-y-2">
         <!-- 标题 -->
         <div class="mb-2 flex items-center justify-between" v-if="props.title">
             <span class="text-lg font-bold">{{ props.title }}</span>
@@ -106,15 +106,11 @@ const getPointClass = (point: Point) => {
             class="relative overflow-hidden rounded border-2 border-gray-600 bg-gray-800"
             :style="{
                 width: props.width ? `${props.width}rem` : 'w-full',
-                aspectRatio: `${props.xMax - props.xMin}/${props.yMax - props.yMin}`,
+                aspectRatio: `${props.xMax - props.xMin}/${props.yMax - props.yMin}`
             }"
         >
             <!-- 网格背景 -->
             <div class="bg-grid-pattern absolute inset-0 opacity-20"></div>
-
-            <!-- 坐标轴 -->
-            <!--            <div class="absolute left-0 top-1/2 w-full h-px bg-gray-500"></div>-->
-            <!--            <div class="absolute left-1/2 top-0 h-full w-px bg-gray-500"></div>-->
 
             <!-- 多点显示 -->
             <div

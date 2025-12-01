@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
     showDetail: true,
     showLabels: false,
     height: 1,
-    formatValue: (value: number) => value.toFixed(2),
+    formatValue: (value: number) => value.toFixed(2)
 })
 
 // 计算值在范围内的位置百分比
@@ -63,12 +63,11 @@ const isValid = computed(
         (props.value === undefined &&
             props.rangeStart !== undefined &&
             props.rangeEnd !== undefined &&
-            props.rangeStart <= props.rangeEnd),
+            props.rangeStart <= props.rangeEnd)
 )
 </script>
 
 <template>
-
     <div class="value-bar min-w-50 space-y-1" v-if="isValid">
         <!-- 标题 -->
         <div class="mb-2 flex items-center justify-between" v-if="props.title">
@@ -85,7 +84,7 @@ const isValid = computed(
                 class="rounded bg-gradient-to-r from-[var(--leftColor)] to-[var(--rightColor)] px-2 py-1 text-xs text-white"
                 :style="{
                     '--leftColor': getColor(props.rangeStart!),
-                    '--rightColor': getColor(props.rangeEnd!),
+                    '--rightColor': getColor(props.rangeEnd!)
                 }"
                 >[{{ formatValue(props.rangeStart!) }} - {{ formatValue(props.rangeEnd!) }}]</span
             >
@@ -107,7 +106,7 @@ const isValid = computed(
                     left: `${getPosition(props.rangeStart!)}%`,
                     width: `${getPosition(props.rangeEnd!) - getPosition(props.rangeStart!)}%`,
                     '--startColor': getColor(props.rangeStart!),
-                    '--endColor': getColor(props.rangeEnd!),
+                    '--endColor': getColor(props.rangeEnd!)
                 }"
             />
             <!-- 显示值-->
@@ -117,7 +116,7 @@ const isValid = computed(
                 :style="{
                     left: `0%`,
                     width: `${getPosition(props.value!)}%`,
-                    backgroundColor: getColor(props.value!),
+                    backgroundColor: getColor(props.value!)
                 }"
             />
         </div>
@@ -138,7 +137,7 @@ const isValid = computed(
                 class="rounded bg-gradient-to-r from-[var(--leftColor)] to-[var(--rightColor)] px-2 py-1 text-xs text-white"
                 :style="{
                     '--leftColor': getColor(props.rangeStart!),
-                    '--rightColor': getColor(props.rangeEnd!),
+                    '--rightColor': getColor(props.rangeEnd!)
                 }"
                 >[{{ formatValue(props.rangeStart!) }} - {{ formatValue(props.rangeEnd!) }}]</span
             >
@@ -146,7 +145,6 @@ const isValid = computed(
         </div>
     </div>
     <div class="rounded-md bg-red-100 p-2 text-red-500" v-else>输入值范围错误</div>
-
 </template>
 
 <style scoped>

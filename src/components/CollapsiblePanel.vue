@@ -1,6 +1,6 @@
 <template>
     <div
-        class="collapsible-panel w-full rounded-lg border-2 border-gray-400 p-4 transition-all duration-300 overflow-hidden"
+        class="collapsible-panel w-full overflow-hidden rounded-lg border-2 border-gray-400 p-4 transition-all duration-300"
     >
         <!-- 标题区域 -->
         <div
@@ -27,9 +27,15 @@
         <!-- 内容区域 -->
         <div
             class="transition-all duration-300"
-            :class="{ 'max-h-0': !isExpanded, 'max-h-10000': isExpanded,'opacity-0': !isExpanded, 'opacity-100': isExpanded }"
+            :class="{
+                'max-h-0': !isExpanded,
+                'max-h-10000': isExpanded,
+                'opacity-0': !isExpanded,
+                'opacity-100': isExpanded,
+                'pointer-events-none': !isExpanded
+            }"
         >
-                <slot></slot>
+            <slot></slot>
         </div>
     </div>
 </template>
@@ -43,7 +49,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    defaultExpanded: false,
+    defaultExpanded: false
 })
 
 const isExpanded = ref(props.defaultExpanded)
@@ -65,7 +71,7 @@ const collapse = () => {
 defineExpose({
     expand,
     collapse,
-    togglePanel,
+    togglePanel
 })
 </script>
 

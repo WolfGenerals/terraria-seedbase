@@ -1,79 +1,49 @@
-export class Range {
-    public readonly min: number
+import type { CachedTerrariaRandom } from '@/terraria/Random.ts'
+
+export class Constraint {
     public readonly max: number
-    constructor(min: number, max: number) {
-        // may invalid, but it's a possible case to use
-        // Range.of(1,2).intersect(Range.of(2,3)) => Range.of(2,2)
-        this.min = min
+    public readonly min: number
+    public readonly target?: number
+    constructor(min: number, max: number, target?: number) {
         this.max = max
-    }
-    public static of(min: number, max: number): Range {
-        return new Range(min, max)
+        this.min = min
+        this.target = target
     }
 
-    public get valid(): boolean {
-        return this.min < this.max
+    static aroundTarget(target: number, delta: number) {
+        return new Constraint(target - delta, target + delta, target)
     }
-    public get center(): number {
-        return (this.min + this.max) / 2
+    static between(min: number, max: number) {
+        return new Constraint(min, max)
     }
-    public get length(): number {
-        return this.max - this.min + 1
-    }
-    public contains(value: number): boolean {
+
+    public contains(value: number) {
         return this.min <= value && value < this.max
     }
-    public intersect(other: Range): Range {
-        return this.intersectOf(other.min, other.max)
-    }
-    public intersectOf(min: number, max: number): Range {
-        return Range.of(Math.max(this.min, min), Math.min(this.max, max))
-    }
-    public conflictsWith(other: Range): boolean {
-        return !this.intersect(other).valid
-    }
-    public conflictsWithRange(min: number, max: number): boolean {
-        return !this.intersectOf(min, max).valid
-    }
-    public toString(): string {
-        return `Range[${this.min},${this.max}]`
-    }
-}
-
-export class RandomConstraints {
-    private readonly constraints: Map<number, Range> = new Map()
-    constructor(constraints: Map<number, Range>) {
-        // this.constraints = constraints
-        //  deep copy
-        this.constraints = new Map(constraints)
-    }
-
-    public hasConstraint(index: number): boolean {
-        return this.constraints.has(index)
-    }
-    public getConstraint(index: number): Range {
-        return this.constraints.get(index)!
-    }
-    public withConstraint(index: number, range: Range): RandomConstraints {
-        return new RandomConstraints({
-            ...this.constraints,
-            [index]: this.hasConstraint(index)
-                ? this.constraints.get(index)!.intersect(range)
-                : range,
-        })
-    }
-    public merge(other: RandomConstraints): RandomConstraints {
-        const keys = [...this.constraints.keys(), ...other.constraints.keys()]
-        const mergedRanges = new Map<number, Range>()
-        for (const key of keys) {
-            let range = this.hasConstraint(key)
-                ? this.getConstraint(key)!
-                : other.getConstraint(key)!
-            if (this.hasConstraint(key) && other.hasConstraint(key)) {
-                range = this.getConstraint(key)!.intersect(other.getConstraint(key)!)
-            }
-            mergedRanges.set(key, range)
+    public diff(value: number) {
+        if (!this.contains(value)) {
+            return Number.POSITIVE_INFINITY
         }
-        return new RandomConstraints(mergedRanges)
+        return this.target ? Math.abs(value - this.target) : 0
+    }
+
+    public static allSatisfied(
+        genRand: CachedTerrariaRandom,
+        constraints: Map<number, Constraint>
+    ) {
+        return [...constraints.keys()].every((index) =>
+            constraints.get(index)!.contains(genRand.random(index))
+        )
+    }
+    public static averageDiffs(
+        genRand: CachedTerrariaRandom,
+        constraints: Map<number, Constraint>
+    ): number {
+        if (constraints.size === 0) return 0
+        return (
+            [...constraints.keys()]
+                .map((index) => constraints.get(index)!.diff(genRand.random(index)))
+                .reduce((acc, cur) => acc + cur, 0) / constraints.size
+        )
     }
 }

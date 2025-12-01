@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-const props = withDefaults(defineProps<{
-  locked?: boolean,
-}>(), {
-  locked: false,
-})
+const props = withDefaults(
+    defineProps<{
+        locked?: boolean
+    }>(),
+    {
+        locked: false
+    }
+)
 
 const seed = defineModel<number>()
-const seedInput = ref('0')
+const seedInput = ref(seed.value?.toString() ?? '0')
 
 const seedTextIsNumber = computed(
     () =>
         /^-?\d+$/.test(seedInput.value) &&
         parseInt(seedInput.value) >= -(2 ** 31) &&
-        parseInt(seedInput.value) <= 2 ** 31 - 1,
+        parseInt(seedInput.value) <= 2 ** 31 - 1
 )
 
 const seedFromInput = computed(() => convertTextToSeed(seedInput.value.trim()))
@@ -22,10 +25,9 @@ const seedFromInput = computed(() => convertTextToSeed(seedInput.value.trim()))
 // 监听外部传入的seed值变化
 watch(seed, (newSeed) => {
     if (newSeed !== seedFromInput.value) {
-        seedInput.value = newSeed?.toString() || '0'
+        seedInput.value = newSeed?.toString() ?? '0'
     }
 })
-
 
 const convertTextToSeed = (seedText: string): number =>
     processSeedValue(seedTextIsNumber.value ? parseInt(seedText) | 0 : calculateCRC32(seedText))
@@ -61,7 +63,7 @@ const convertToStandardSeed = () => {
                 v-model="seedInput"
                 @input="seed = seedFromInput"
                 :disabled="props.locked"
-                class="focus:border-gary-400 w-full rounded-lg border-2 bg-gray-800 px-4 py-3 text-white placeholder-gray-500 transition-all focus:ring-2 focus:gray-amber-400/20 focus:outline-none"
+                class="focus:border-gary-400 focus:gray-amber-400/20 w-full rounded-lg border-2 bg-gray-800 px-4 py-3 text-white placeholder-gray-500 transition-all focus:ring-2 focus:outline-none"
                 :class="
                     props.locked
                         ? 'cursor-not-allowed border-gray-600 opacity-60'
@@ -72,7 +74,7 @@ const convertToStandardSeed = () => {
         </div>
         <span
             v-if="!seedTextIsNumber"
-            class="align-baseline text-[0.5rem] text-yellow-800 cursor-pointer"
+            class="cursor-pointer align-baseline text-xs text-yellow-800"
             @click="convertToStandardSeed"
         >
             非常规种子，点击转化为标准种子

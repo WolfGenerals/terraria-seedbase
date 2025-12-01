@@ -3,7 +3,7 @@ import {
     LARGE_WORLD_BASIC_INFO,
     MEDIUM_WORLD_BASIC_INFO,
     SMALL_WORLD_BASIC_INFO,
-    type WorldBasicInfo,
+    type WorldBasicInfo
 } from '@/terraria/World.ts'
 
 const DAY_TIME = 24 * 60 * 60 /* 86400frame */
@@ -13,7 +13,7 @@ export class SimulatedWorldGeneration {
     constructor(
         public readonly genRand: CachedTerrariaRandom,
         worldSize: 'small' | 'medium' | 'large',
-        public readonly evilGenMethod: 'random' | 'corruption' | 'crimson',
+        public readonly evilGenMethod: 'random' | 'corruption' | 'crimson'
     ) {
         switch (worldSize) {
             case 'small':
@@ -53,7 +53,10 @@ export class SimulatedWorldGeneration {
         const iron = this.genRand.select(5, ['iron', 'lead'] as const)
         const silver = this.genRand.select(6, ['silver', 'tungsten'] as const)
         const gold = this.genRand.select(7, ['gold', 'platinum'] as const)
-        const evilType = this.evilGenMethod === 'random' ? this.genRand.select(8, ['corruption', 'crimson'] as const) : this.evilGenMethod
+        const evilType =
+            this.evilGenMethod === 'random'
+                ? this.genRand.select(8, ['corruption', 'crimson'] as const)
+                : this.evilGenMethod
         const dungeonSide = this.genRand.select(9, ['left', 'right'] as const)
         this.resetInfo = {
             evilLocation,
@@ -65,7 +68,7 @@ export class SimulatedWorldGeneration {
             silver,
             gold,
             evilType,
-            dungeonSide,
+            dungeonSide
         }
     }
 
@@ -83,12 +86,12 @@ export class SimulatedWorldGeneration {
         const maxY = Math.floor(Math.min(((maxTilesY - 250) * 2 + rockLayer) / 3, maxTilesY - 460))
         const minX = Math.floor(this.resetInfo!.dungeonSide === 'left' ? maxTilesX * 0.89 : 200)
         const maxX = Math.floor(
-            this.resetInfo!.dungeonSide === 'left' ? maxTilesX - 200 : maxTilesX * 0.11,
+            this.resetInfo!.dungeonSide === 'left' ? maxTilesX - 200 : maxTilesX * 0.11
         )
 
         this.shimmerInfo = {
             y: this.genRand.randInt(1, minY, maxY),
-            x: this.genRand.randInt(2, minX, maxX),
+            x: this.genRand.randInt(2, minX, maxX)
         }
     }
 
@@ -111,7 +114,7 @@ export class SimulatedWorldGeneration {
             | 'rich_mahogany'
             | 'tin_brick'
             | 'gold_brick'
-        baseCounts:{
+        baseCounts: {
             // 湖的数量
             lakes: number
             // 生命树的数量
@@ -140,7 +143,7 @@ export class SimulatedWorldGeneration {
 
         const mossType = this.genRand.select(1, ['argon', 'xenon', 'krypton', 'neon'] as const)
         const dungeonY = Math.floor(
-            (worldSurface + rockLayer) / 2 + this.genRand.randInt(1, -200, 200),
+            (worldSurface + rockLayer) / 2 + this.genRand.randInt(1, -200, 200)
         )
         const dungeonColor = this.genRand.select(2, ['blue', 'green', 'pink'] as const)
         const dungeonFirstChestRelativeY = this.genRand.random(1)
@@ -186,66 +189,66 @@ export class SimulatedWorldGeneration {
             'Kevin',
             'Brian',
             'Colin',
-            'Jan',
+            'Jan'
         ] as const)
         const shrinesType = this.genRand.select(1, [
             'iridescent_brick',
             'mudstone_brick',
             'rich_mahogany',
             'tin_brick',
-            'gold_brick',
+            'gold_brick'
         ] as const)
         const baseCounts = {
             lakes: this.genRand.randInt(
                 this.world.baseCounts.lakes.randIndex,
                 this.world.baseCounts.lakes.min,
-                this.world.baseCounts.lakes.max + 1,
+                this.world.baseCounts.lakes.max + 1
             ),
             livingTrees: this.genRand.randInt(
                 this.world.baseCounts.livingTrees.randIndex,
                 this.world.baseCounts.livingTrees.min,
-                this.world.baseCounts.livingTrees.max + 1,
+                this.world.baseCounts.livingTrees.max + 1
             ),
             hives: this.genRand.randInt(
                 this.world.baseCounts.hives.randIndex,
                 this.world.baseCounts.hives.min,
-                this.world.baseCounts.hives.max + 1,
+                this.world.baseCounts.hives.max + 1
             ),
             shrines: this.genRand.randInt(
                 this.world.baseCounts.shrines.randIndex,
                 this.world.baseCounts.shrines.min,
-                this.world.baseCounts.shrines.max + 1,
+                this.world.baseCounts.shrines.max + 1
             ),
             granite: this.genRand.randInt(
                 this.world.baseCounts.granite.randIndex,
                 this.world.baseCounts.granite.min,
-                this.world.baseCounts.granite.max + 1,
+                this.world.baseCounts.granite.max + 1
             ),
             marble: this.genRand.randInt(
                 this.world.baseCounts.marble.randIndex,
                 this.world.baseCounts.marble.min,
-                this.world.baseCounts.marble.max + 1,
+                this.world.baseCounts.marble.max + 1
             ),
             dunes: this.genRand.randInt(
                 this.world.baseCounts.dunes.randIndex,
                 this.world.baseCounts.dunes.min,
-                this.world.baseCounts.dunes.max + 1,
+                this.world.baseCounts.dunes.max + 1
             ),
             undergroundCabins: this.genRand.randInt(
                 this.world.baseCounts.undergroundCabins.randIndex,
                 this.world.baseCounts.undergroundCabins.min,
-                this.world.baseCounts.undergroundCabins.max + 1,
+                this.world.baseCounts.undergroundCabins.max + 1
             ),
             undergroundChests: this.genRand.randInt(
                 this.world.baseCounts.undergroundChests.randIndex,
                 this.world.baseCounts.undergroundChests.min,
-                this.world.baseCounts.undergroundChests.max + 1,
+                this.world.baseCounts.undergroundChests.max + 1
             ),
             shadowChests: this.genRand.randInt(
                 this.world.baseCounts.shadowChests.randIndex,
                 this.world.baseCounts.shadowChests.min,
-                this.world.baseCounts.shadowChests.max + 1,
-            ),
+                this.world.baseCounts.shadowChests.max + 1
+            )
         }
         if (baseCounts.livingTrees == 0 && this.genRand.random(2) < 0.5) baseCounts.livingTrees = 1
 

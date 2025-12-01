@@ -5,13 +5,12 @@
         <!-- 进度条 -->
         <div
             class="absolute inset-0 z-10 transition-all duration-300"
-            :class="barClassStyle.class"
             :style="barClassStyle.style"
         />
         <span class="z-20 text-lg font-bold">{{ title }}</span>
         <span
             v-if="showValue"
-            class="z-20 mt-1 rounded px-2 py-1 text-xs text-white bg-gray-600/50"
+            class="z-20 mt-1 rounded bg-gray-600/50 px-2 py-1 text-xs text-white"
         >
             {{ formatValue(value) }}
         </span>
@@ -43,66 +42,47 @@ const props = withDefaults(defineProps<Props>(), {
     startColor: '#0ea5e9', // 青色
     endColor: '#f97316', // 橙色
     showValue: true,
-    formatValue: (value: number) => value.toFixed(2),
+    formatValue: (value: number) => value.toFixed(2)
 })
-
+const getPosition = (value: number) => {
+    const range = props.max - props.min
+    if (range === 0) return 0
+    return ((value - props.min) / range) * 100
+}
 // 计算值在范围内的位置百分比
-const ratio = computed(() => {
+computed(() => {
     const range = props.max - props.min
     if (range === 0) return 0.5
     return (props.value - props.min) / range
 })
-
 // 使用CSS mix()函数计算颜色
-const computedColor = computed(() => {
-    return `color-mix(in srgb, ${props.startColor} ${ratio.value * 100}%, ${props.endColor})`
+const valueColor = computed(() => {
+    return `color-mix(in oklch, ${props.startColor} ${getPosition(props.value)}%, ${props.endColor})`
 })
 
 const barClassStyle = computed(() => {
-    const classes: string[] = []
     const styleObj: Record<string, string> = {}
-    styleObj['backgroundColor'] = computedColor.value
-    // if (['top', 'bottom'].includes(props.side)) {
-    //     // classes.push("w-full")
-    //     // classes.push(props.side === 'top' ? 'top-0' : 'bottom-0')
-    //     styleObj['top'] = props.side === 'top' ? '0%' : `${100 - ratio.value * 100}%`
-    //     styleObj['height'] = `${ratio.value * 100}%`
-    // } else if (['left', 'right'].includes(props.side)) {
-    //     // classes.push("h-full")
-    //     // classes.push(props.side === 'left' ? 'left-0' : 'right-0')
-    //     styleObj['left'] = props.side === 'left' ? '0%' : `${100 - ratio.value * 100}%`
-    //     styleObj['width'] = `${ratio.value * 100}%`
-    // }
+    styleObj['backgroundColor'] = valueColor.value
     switch (props.side) {
         case 'top':
             styleObj['top'] = '0%'
-            styleObj['height'] = `${ratio.value * 100}%`
+            styleObj['height'] = `${getPosition(props.value)}%`
             break
         case 'bottom':
-            styleObj['top'] = `${(1-ratio.value) * 100}%`
-            styleObj['height'] = `100%`
+            styleObj['top'] = `${getPosition(1 - props.value)}%`
+            styleObj['height'] = `${getPosition(props.value)}%`
             break
         case 'left':
             styleObj['left'] = '0%'
-            styleObj['width'] = `${ratio.value * 100}%`
+            styleObj['width'] = `${getPosition(props.value)}%`
             break
         case 'right':
-            styleObj['left'] = `${(1-ratio.value) * 100}%`
-            styleObj['width'] = `100%`
+            styleObj['left'] = `${getPosition(1 - props.value)}%`
+            styleObj['width'] = `${getPosition(props.value)}%`
             break
     }
     return {
-        class: classes,
-        style: styleObj,
+        style: styleObj
     }
 })
 </script>
-
-<style scoped>
-/* 确保CSS变量在组件内生效 */
-:root {
-    --start-color: #0ea5e9;
-    --end-color: #f97316;
-    --ratio: 0.5;
-}
-</style>

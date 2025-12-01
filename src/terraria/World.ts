@@ -28,7 +28,7 @@ export class WorldBasicInfo {
             undergroundChests: FeatureCount
             // 暗影箱子的数量
             shadowChests: FeatureCount
-        },
+        }
     ) {}
     get height(): number {
         return this.maxTilesY
@@ -41,28 +41,28 @@ export class WorldBasicInfo {
     }
 
     get worldSurface(): number {
-        return Math.round(this.maxTilesY * 0.25)+25
+        return Math.round(this.maxTilesY * 0.25) + 25
     }
     get rockLayer(): number {
         return Math.round(this.worldSurface + this.maxTilesY * 0.1)
     }
 
-    xToPosition(x:number): number {
-        return Math.round((x-this.maxTilesX/2)*2)
+    xToPosition(x: number): number {
+        return Math.round((x - this.maxTilesX / 2) * 2)
     }
-    yToDepth(y:number): number {
-        return Math.round((this.worldSurface-y)*2)
+    yToDepth(y: number): number {
+        return Math.round((this.worldSurface - y) * 2)
     }
-    xToPositionWithDirection(x:number):{value:number,direction:'west'|'east'} {
+    xToPositionWithDirection(x: number): { value: number; direction: 'west' | 'east' } {
         return {
             value: Math.abs(this.xToPosition(x)),
-            direction: x < this.maxTilesX / 2 ? 'west' : 'east',
+            direction: x < this.maxTilesX / 2 ? 'west' : 'east'
         }
     }
-    yToPositionWithDirection(y:number):{value:number,direction:'up'|'down'} {
+    yToPositionWithDirection(y: number): { value: number; direction: 'up' | 'down' } {
         return {
             value: Math.abs(this.yToDepth(y)),
-            direction: y < this.worldSurface ? 'up' : 'down',
+            direction: y < this.worldSurface ? 'up' : 'down'
         }
     }
 }
@@ -77,7 +77,7 @@ export const SMALL_WORLD_BASIC_INFO = new WorldBasicInfo(4200, 1200, {
     dunes: { min: 1, max: 2, randIndex: 1 },
     undergroundCabins: { min: 35, max: 40, randIndex: 1 },
     shadowChests: { min: 10, max: 15, randIndex: 2 },
-    undergroundChests: { min: 35, max: 40, randIndex: 3 },
+    undergroundChests: { min: 35, max: 40, randIndex: 3 }
 })
 export const MEDIUM_WORLD_BASIC_INFO = new WorldBasicInfo(6400, 1800, {
     lakes: { min: 4, max: 8, randIndex: 1 },
@@ -89,7 +89,7 @@ export const MEDIUM_WORLD_BASIC_INFO = new WorldBasicInfo(6400, 1800, {
     dunes: { min: 1, max: 3, randIndex: 1 },
     undergroundCabins: { min: 80, max: 92, randIndex: 1 },
     shadowChests: { min: 15, max: 22, randIndex: 2 },
-    undergroundChests: { min: 80, max: 92, randIndex: 3 },
+    undergroundChests: { min: 80, max: 92, randIndex: 3 }
 })
 export const LARGE_WORLD_BASIC_INFO = new WorldBasicInfo(8400, 2400, {
     lakes: { min: 6, max: 11, randIndex: 1 },
@@ -101,5 +101,5 @@ export const LARGE_WORLD_BASIC_INFO = new WorldBasicInfo(8400, 2400, {
     dunes: { min: 2, max: 4, randIndex: 1 },
     undergroundCabins: { min: 140, max: 160, randIndex: 1 },
     shadowChests: { min: 20, max: 30, randIndex: 2 },
-    undergroundChests: { min: 140, max: 160, randIndex: 3 },
+    undergroundChests: { min: 140, max: 160, randIndex: 3 }
 })

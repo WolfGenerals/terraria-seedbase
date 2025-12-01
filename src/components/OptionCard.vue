@@ -1,7 +1,7 @@
 <template>
     <button
         :disabled="disabled"
-        class="flex flex-col items-center w-full justify-center rounded-lg border-2 p-4 transition-all duration-500"
+        class="flex w-full flex-col items-center justify-center rounded-lg border-2 p-4 transition-all duration-500"
         :class="computedClasses"
         @click="handleClick"
     >
@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
     activeStyle: 'border-gray-400 bg-gray-400/30',
     inactiveStyle: 'border-gray-600 bg-gray-600/30',
     disabledStyle: 'cursor-not-allowed opacity-60',
-    enabledStyle: 'cursor-pointer hover:transform hover:scale-105',
+    enabledStyle: 'cursor-pointer hover:transform hover:scale-105'
 })
 
 const emit = defineEmits<{

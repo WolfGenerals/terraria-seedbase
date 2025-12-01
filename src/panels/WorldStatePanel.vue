@@ -19,7 +19,7 @@ const worldGen = computed(() => {
     const simulator = new SimulatedWorldGeneration(
         props.genRand,
         props.worldSize,
-        props.evilGenType,
+        props.evilGenType
     )
     simulator.simulateAll()
     simulator.simulateFromVideo()
@@ -41,7 +41,7 @@ const formatPosition = (value: number) => {
 
 <template>
     <div style="font-family: inherit" class="flex flex-col gap-2">
-        <collapsible-panel title="基本信息" default-expanded>
+        <collapsible-panel title="基本信息">
             <span class="m-2 text-sm text-gray-400">坐标均为估算，可能与实际位置有偏差。</span>
             <div class="m-2 grid grid-cols-2 gap-2">
                 <option-card text="世界宽度" :describe="`${world.maxTilesX}格`" />
@@ -52,7 +52,7 @@ const formatPosition = (value: number) => {
                     :min="0"
                     :max="world.maxTilesY"
                     side="top"
-                    :format-value="value => `${value}格/${formatDepth(value)}`"
+                    :format-value="(value) => `${value}格/${formatDepth(value)}`"
                 />
                 <value-card
                     title="地下/洞穴分界线"
@@ -60,7 +60,7 @@ const formatPosition = (value: number) => {
                     :min="0"
                     :max="world.maxTilesY"
                     side="top"
-                    :format-value="value => `${value}格/${formatDepth(value)}`"
+                    :format-value="(value) => `${value}格/${formatDepth(value)}`"
                 />
             </div>
         </collapsible-panel>
@@ -142,7 +142,7 @@ const formatPosition = (value: number) => {
                 :show-labels="true"
             />
         </collapsible-panel>
-        <collapsible-panel title="其他世界信息" default-expanded>
+        <collapsible-panel title="其他世界信息">
             <div class="m-2 grid grid-cols-4 gap-2">
                 <!-- otherInfoFromVideo -->
                 <option-card
@@ -168,7 +168,7 @@ const formatPosition = (value: number) => {
                             mudstone_brick: '泥石砖',
                             rich_mahogany: '红木',
                             tin_brick: '锡砖',
-                            gold_brick: '金砖',
+                            gold_brick: '金砖'
                         }[worldGen.otherInfoFromVideo!.shrinesType]
                     "
                     describe="神龛类型"
@@ -307,7 +307,6 @@ const formatPosition = (value: number) => {
                 />
             </div>
         </collapsible-panel>
-
     </div>
 </template>
 

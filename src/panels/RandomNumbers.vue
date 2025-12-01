@@ -1,33 +1,37 @@
 <script setup lang="ts">
-import ValueBar from '@/components/ValueBar.vue'
 import type { CachedTerrariaRandom } from '@/terraria/Random.ts'
-import ValueCard from '@/components/ValueCard.vue'
+import ConstraintCard from '@/components/ConstraintCard.vue'
+import { Constraint } from '@/terraria/Constraints.ts'
+import { computed } from 'vue'
 
 interface Props {
     genRand: CachedTerrariaRandom
-    show?: number[]
+    constraints?: Map<number, Constraint>
+    alwaysShowTopK?: number
 }
 const props = withDefaults(defineProps<Props>(), {
-    show: () => Array.from({ length: 10 }, (_, index) => index + 1),
+    constraints: () => new Map(),
+    alwaysShowTopK: 10
+})
+
+const shows = computed(() => {
+    const defaultShows = Array.from({ length: props.alwaysShowTopK }, (_, i) => i + 1)
+    // 不重复，有序
+    return [...new Set([...defaultShows, ...props.constraints.keys()])].sort((a, b) => a - b)
 })
 </script>
 
 <template>
     <div class="random-numbers-panel min-w-80">
-        <div class="mb-4 flex flex-wrap items-baseline gap-3">
-            <h3 class="mb-4 text-lg font-bold text-amber-400">随机数序列</h3>
-            <div class="mb-4 text-sm text-gray-400">种子: {{ genRand.seed }}</div>
-        </div>
-
         <div class="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3">
-
-                <value-card
-                    v-for="(randIndex, index) in props.show"
-                    :key="index"
-                    :value="genRand.random(randIndex)"
-                    :title="`第${randIndex}随机数`"
-                    :format-value="(v) => v.toFixed(4)"
-                />
+            <constraint-card
+                v-for="(randIndex, index) in shows"
+                :key="index"
+                :constraint="props.constraints.get(randIndex) ?? undefined"
+                :value="genRand.random(randIndex)"
+                :title="`第${randIndex}随机数`"
+                :format-value="(v) => v.toFixed(4)"
+            />
         </div>
     </div>
 </template>

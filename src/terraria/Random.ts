@@ -1,90 +1,164 @@
-export class TerrariaRandom {
-    readonly MAX_INT: number = 0x7fffffff
-    readonly SEED_MULTIPLIER: number = 0x9a4ec86
-    currentIndex: number = 0
-    previousIndex: number = 0
-    seedArray: number[] = []
-    readonly seed: number = 0
+import { asInt32, asNumber, i32Abs, i32Add, i32Mod, i32Sub, INT32_MAX } from './Int32'
 
-    constructor(seed: number) {
-        // seed should be int
-        seed = Math.floor(seed % (2 ** 31-1))
-        this.initialize(seed)
-        this.seed = seed
-    }
+export class UnifiedRandom {
+    private SeedArray: bigint[] = new Array(56).fill(0n)
+    private readonly MBIG = INT32_MAX // 2147483647
+    private readonly MSEED = 161803398n // 0x9A4EC86n
+    private inext = 0
+    private inextp = 0
 
-    initialize(seed: number): boolean {
-        this.seedArray = new Array(56)
-        let currentSeed =
-            this.SEED_MULTIPLIER - (seed === -2147483648 ? this.MAX_INT : Math.abs(seed))
-        this.seedArray[55] = currentSeed
-        let previousSeed = 1
+    constructor()
+    constructor(seed: number | bigint)
+    constructor(seed?: number | bigint) {
+        if (seed === undefined) {
+            // 使用当前时间作为种子，模拟 Environment.TickCount
+            seed = UnifiedRandom.getSeed()
+        }
 
+        const seedValue = asInt32(seed)
+        const seedAbs = i32Abs(seedValue) // 自动处理INT32_MIN的情况
+
+        let num1 = i32Sub(this.MSEED, seedAbs)
+        this.SeedArray[55] = num1
+
+        let num2 = 1n
         for (let i = 1; i < 55; i++) {
             const index = (21 * i) % 55
-            this.seedArray[index] = previousSeed
-            previousSeed = currentSeed - previousSeed
-            if (previousSeed < 0) {
-                previousSeed += this.MAX_INT
+            this.SeedArray[index] = num2
+            num2 = i32Sub(num1, num2)
+            if (num2 < 0n) {
+                num2 = i32Add(num2, this.MBIG)
             }
-            currentSeed = this.seedArray[index]!
+            num1 = this.SeedArray[index]
         }
 
-        for (let iteration = 1; iteration < 5; iteration++) {
-            for (let index = 1; index < 56; index++) {
-                let seedValue = this.seedArray[index]!
-                seedValue -= this.seedArray[1 + ((index + 30) % 55)]!
-                if (seedValue < 0) {
-                    seedValue += this.MAX_INT
+        for (let i = 1; i < 5; i++) {
+            for (let j = 1; j < 56; j++) {
+                const index = 1 + ((j + 30) % 55)
+                this.SeedArray[j] = i32Sub(this.SeedArray[j]!, this.SeedArray[index]!)
+                if (this.SeedArray[j]! < 0n) {
+                    this.SeedArray[j] = i32Add(this.SeedArray[j]!, this.MBIG)
                 }
-                this.seedArray[index] = seedValue
             }
         }
 
-        this.currentIndex = 0
-        this.previousIndex = 21
-        return true
+        this.inext = 0
+        this.inextp = 21
     }
 
-    generateInternalSample(): number {
-        if (++this.currentIndex >= 56) {
-            this.currentIndex = 1
-        }
-        if (++this.previousIndex >= 56) {
-            this.previousIndex = 1
-        }
-
-        let sample = this.seedArray[this.currentIndex]! - this.seedArray[this.previousIndex]!
-        if (sample === this.MAX_INT) {
-            sample--
-        }
-        if (sample < 0) {
-            sample += this.MAX_INT
-        }
-
-        this.seedArray[this.currentIndex] = sample
-        return sample
+    static getSeed() {
+        return BigInt(Date.now() & 0x7fffffff)
     }
 
-    next(): number {
-        return this.generateInternalSample() / this.MAX_INT
+    protected sample(): number {
+        return asNumber(this.internalSample()) * 4.6566128752458e-10
+    }
+
+    private internalSample(): bigint {
+        let inext = this.inext
+        let inextp = this.inextp
+
+        if (++inext >= 56) inext = 1
+        if (++inextp >= 56) inextp = 1
+
+        let num = i32Sub(this.SeedArray[inext]!, this.SeedArray[inextp]!)
+
+        if (num === this.MBIG) {
+            num = i32Sub(num, 1n)
+        }
+
+        if (num < 0n) {
+            num = i32Add(num, this.MBIG)
+        }
+
+        this.SeedArray[inext] = num
+        this.inext = inext
+        this.inextp = inextp
+
+        return num
+    }
+
+    public next(): number
+    public next(maxValue: number): number
+    public next(minValue: number, maxValue: number): number
+    public next(minValue?: number, maxValue?: number): number {
+        if (minValue === undefined) {
+            // 无参数版本：返回0到INT32_MAX之间的随机数
+            return asNumber(this.internalSample())
+        } else if (maxValue === undefined) {
+            // 一个参数版本：返回0到maxValue-1之间的随机数
+            if (minValue < 0) {
+                throw new RangeError('maxValue must be positive.')
+            }
+            return Math.floor(this.sample() * minValue)
+        } else {
+            // 两个参数版本：返回minValue到maxValue-1之间的随机数
+            if (minValue > maxValue) {
+                throw new RangeError('minValue must be less than maxValue')
+            }
+
+            const range = BigInt(maxValue - minValue)
+
+            if (range <= this.MBIG) {
+                return Math.floor(this.sample() * Number(range)) + minValue
+            } else {
+                return asNumber(
+                    i32Add(
+                        BigInt(Math.floor(this.getSampleForLargeRange() * Number(range))),
+                        BigInt(minValue)
+                    )
+                )
+            }
+        }
+    }
+
+    private getSampleForLargeRange(): number {
+        let num = this.internalSample()
+
+        // 随机决定正负
+        if (asNumber(i32Mod(this.internalSample(), 2n)) === 0) {
+            num = i32Sub(0n, num) // 取负
+        }
+
+        return (asNumber(num) + 2147483646.0) / 4294967293.0
+    }
+
+    public nextDouble(): number {
+        return this.sample()
+    }
+
+    public nextBytes(buffer: Uint8Array): void {
+        if (!buffer) {
+            throw new Error('buffer cannot be null')
+        }
+
+        for (let i = 0; i < buffer.length; i++) {
+            buffer[i] = asNumber(i32Mod(this.internalSample(), 256n))
+        }
+    }
+
+    // 额外辅助方法：生成随机布尔值
+    public nextBoolean(): boolean {
+        return asNumber(i32Mod(this.internalSample(), 2n)) === 0
+    }
+
+    // 额外辅助方法：生成指定范围内的随机浮点数
+    public nextDoubleRange(min: number, max: number): number {
+        return min + (max - min) * this.nextDouble()
     }
 }
 
 export class CachedTerrariaRandom {
-    readonly generator: TerrariaRandom
+    readonly generator: UnifiedRandom
     readonly cachedValues: number[] = []
 
-    constructor(generator: TerrariaRandom) {
+    constructor(generator: UnifiedRandom) {
         this.generator = generator
         this.cachedValues = []
     }
-    public get seed(): number {
-        return this.generator.seed
-    }
 
     public static fromSeed(seed: number): CachedTerrariaRandom {
-        return new CachedTerrariaRandom(new TerrariaRandom(seed))
+        return new CachedTerrariaRandom(new UnifiedRandom(seed))
     }
 
     random(index: number): number {
@@ -92,7 +166,7 @@ export class CachedTerrariaRandom {
         index = Math.floor(index)
         if (index <= 0) throw new Error('i must be greater than 0')
         while (this.cachedValues.length < index) {
-            this.cachedValues.push(this.generator.next())
+            this.cachedValues.push(this.generator.nextDouble())
         }
         return this.cachedValues[index - 1]!
     }
@@ -106,6 +180,7 @@ export class CachedTerrariaRandom {
             throw new Error('List cannot be empty')
         }
         const selectedIndex = Math.floor(this.random(index) * list.length)
+        if (selectedIndex >= list.length) return list[list.length - 1]! // 浮点数误差可能导致索引超出范围
         return list[selectedIndex]!
     }
 
